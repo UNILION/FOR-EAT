@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styled from "styled-components";
 
-import ReviewCard from "components/recipeDetail/ReviewCard"
 import ReviewForm from "components/recipeDetail/ReviewForm"
-import { getReviewList } from "api/RecipeDetailApi";
 
 const Container = styled.div`
   display: flex;
@@ -26,38 +24,13 @@ const TextContainer = styled.div`
 
 
 const ReviewList = ({ recipeId }) => {
-  const [reviews, setReviews] = useState([]); 
 
-  useEffect(() => {
-    getReviewList(recipeId).then((res) => {
-      setReviews(res)
-      // console.log(res)
-    })
-    .catch((err) => {
-      console.log(err)
-    })
-  }, [])
   return (
       <Container>
         <TextContainer>
           <div className="text">Reviews</div>
         </TextContainer>
-        <ReviewForm recipeId={recipeId} />
-        <div style={{display:"flex", justifyContent:"center", flexWrap:"wrap" }}>
-          { reviews.map((review, index) => ( 
-            <ReviewCard
-              key={review.id}
-              reviewId={review.recipe_id}
-              memberName={review.member_nickname}
-              index={index}
-              imgUrl={review.image_url}
-              content={review.content}
-              ratings={review.ratings}
-              lastModifiedDate={review.last_modified_date}
-            />
-          ))}
-        </div>
-        
+        <ReviewForm recipeId={recipeId}  />
       </Container>
   );
 };

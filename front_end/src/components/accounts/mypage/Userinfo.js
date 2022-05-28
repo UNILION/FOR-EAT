@@ -1,14 +1,14 @@
 import React from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import styled from "styled-components";
 import edit from "assets/img/edit.png";
 import profileImg from "assets/img/Ingredient_rosemary.jpg";
-import { warnAlert, successAlert } from "components/commons/Alert";
-// import { profileImage } from "api/user";
+import { Alert } from "components/commons/Alert";
+import { editMember } from "api/MyPageApi";
 
 const Container = styled.div`
 	margin-top: 7rem;
-`
+`;
 
 const ProfileImage = styled.div`
   position: relative;
@@ -51,7 +51,7 @@ const ConfirmNickName = styled.div`
 const H1 = styled.div`
 	font-weight: bold;
 	font-size: 40px;
-`
+`;
 
 const EditNickName = styled.input`
   position: relative;
@@ -73,23 +73,47 @@ const Email = styled.div`
 
 
 
-const Userinfo = () => {
-  const [image, setImage] = useState();
+const Userinfo = ({image, nickname, email, UserInfo}) => {
   const [showNickname, setShowNickname] = useState(true);
-  const [saveNickname, setSaveNickname] = useState("test");
+  const [saveNickname, setSaveNickname] = useState();
+  const [saveImage, setSaveImage] = useState();
+  const [flagNickname, setFlagNickname] = useState();
+  const [flagImage, setFlagImage] = useState();
 
-  const onFileUpload = (e) => {
-    console.log("FileUpload")
-  };
+  if (!flagNickname && nickname !== undefined){setSaveNickname(nickname); setFlagNickname(1)}
+  if (!flagImage && image !== undefined){setSaveImage(image); setFlagImage(1)}
+  
+  const formData = new FormData();
+  const onFileUpload = async (e) => {
+    let file_kind = e.target.value.lastIndexOf(".");
+    let file_name = e.target.value.substring(file_kind + 1, e.length);
+    let file_type = file_name.toLowerCase();
+    let check_file_type = new Array();
+    check_file_type = ["jpg", "gif", "png", "jpeg"];
+    
+    if (check_file_type.indexOf(file_type) == -1) {
+      Alert("🧡 Only image files can be selected.");
+      return false;
+    }
+    
+    formData.append("profile_image_url", e.target.files[0]);
 
+    editMember(UserInfo, formData).then((res) => {
+        setSaveImage(res.profile_image_url)
+      })
+      .catch(() => console.log(formData))
+    };
+    
 	const onShowName = (e) => {
 		if(e.target.value.length === 0 && e.keyCode === 13){
-      warnAlert("닉네임은 1글자 이상 8글자 이하입니다!");
+      Alert("🧡 Nickname must be between 1 and 8 characters!");
 	}
 		else if(e.keyCode === 13){
-      successAlert("닉네임 변경에 성공하셨습니다!");
+      Alert("🧡 successfully changed your nickname!");
 			setSaveNickname(e.target.value)
+      formData.append("nickname", e.target.value)
 			setShowNickname(true)
+      editMember(UserInfo, formData)
 		}
   };
 
@@ -97,14 +121,13 @@ const Userinfo = () => {
 			setShowNickname(false)
   };
 
-
   return (
     <>
       <Container>
         <ProfileImage>
           <label htmlFor="file-input">
-            {image ? (
-              <Image src={image} alt="이미지를 찾을 수 없습니다." />
+            {saveImage ? (
+              <Image src={saveImage} alt="이미지를 찾을 수 없습니다." />
             ) : (
               <Image src={profileImg} alt="이미지를 찾을 수 없습니다." />
             )}
@@ -135,7 +158,7 @@ const Userinfo = () => {
           )}
 				</NickName>
 				<Email>
-				1seul357@gmail.com
+				{email}
 				</Email>
       </Container>
     </>

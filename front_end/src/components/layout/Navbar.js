@@ -1,10 +1,11 @@
-import React from "react";
+import {React, useState, useEffect} from "react";
 import styled from "styled-components";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Typography from "components/commons/Typography";
-import Profile from "components/commons/Profile";
-import reading_glasses from 'assets/img/reading_glasses.png'
-import { useEffect, useState } from "react";
+import SearchInput from "components/search/SearchInput"
+import NavItem from "components/layout/NavItem"
+import { useRecoilValue } from 'recoil';
+import { userInfoState } from '../../atoms/atoms';
 
 const Container = styled.div`
   display: flex;
@@ -15,62 +16,69 @@ const Container = styled.div`
 
 const TabContainer = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  justify-content: center;
-  align-items:center;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
   position: relative;
-  padding: 0 30vw 0 30vw;
+  line-height: 28px;
 `
 
-const SearchContainer = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: end;
-  align-items: center;
-`
-const Input = styled.input`
-  display: inline-flex;
-  width: 17rem;
-  height: 1.5rem;
-  font-size: 0.7rem;
-  margin: 0;
-  border-radius: 10rem;
-  border: 1px solid grey;
-  padding-left: 1rem;
-`
-
-const SearchImgWrapper = styled.a`
-  display: flex;
-  cursor: pointer;
-  margin-left: 0.5rem;
-`
-
-const ReadingGlassesImg = styled.img`
-  width: 1.5rem;
-  height: 1.5rem;
-`
 const Navbar = () => {
+  const location = useLocation();
+  const [isSelected, setIsSelected] = useState("/home");
   const navigate = useNavigate();
+
+  const UserInfo = useRecoilValue(userInfoState);
+  
+  const onClick = (url) => {
+    navigate(url);
+    setIsSelected(url);
+  };
+
+  useEffect(() => {
+    setIsSelected("/" + location.pathname.split("/")[1]);
+  }, [location]);
 
   return (
     <Container>
-      <div style={{display: "grid", gridTemplateColumns: "1fr 1fr 1fr"}}>
-        <div></div>
+      <div style={{display: "flex", justifyContent: "center", alignItems: "center"}}>
         <Typography ff="Philosopher" fs="3rem" cursor="pointer" onClick={() => navigate("/recommend")} >FOR:EAT</Typography>
-        <SearchContainer>
-          <Input placeholder=" search in result" />
-          <SearchImgWrapper>
-            <ReadingGlassesImg src={reading_glasses} alt="reading_glasses" />
-          </SearchImgWrapper>
-          <Profile />
-        </SearchContainer>
       </div>
       <Typography ff="Playfair Display" fs="0.8rem" fw="500" pb="1rem">ONLY FOR YOU</Typography>
+      
+      <div style={{display: "grid", gridTemplateColumns: "1fr 2fr 1fr"}}>
+      <div></div>
       <TabContainer>
-        <Typography fs="1rem" fw="600" cursor="pointer" hoverColor="#ED8141" onClick={() => { navigate("/recommend")}}>FEED</Typography>
-        <Typography fs="1rem" fw="600" cursor="pointer" hoverColor="#ED8141" onClick={() => { navigate("/ingredient")}}>INGREDIENTS</Typography>
-        <Typography fs="1rem" fw="600" cursor="pointer" hoverColor="#ED8141" onClick={() => { navigate("/category")}}>CATEGORIES</Typography>
+        <NavItem 
+                url="/recommend"
+                name="FEED"
+                onClick={onClick}
+                isSelected={isSelected}
+        />
+        <NavItem 
+                url="/ingredient"
+                name="INGREDIENTS"
+                onClick={onClick}
+                isSelected={isSelected}
+        />
+        <NavItem 
+                url="/category"
+                name="CATEGORIES"
+                onClick={onClick}
+                isSelected={isSelected}
+        />
+        <NavItem 
+                url="/browse"
+                name="BROWSE"
+                onClick={onClick}
+                isSelected={isSelected}
+        />
+
       </TabContainer>
+      <SearchInput
+      url = {"/" + UserInfo + "/mypage"}
+      onClick={onClick}
+      isSelected={isSelected}
+    />
+      </div>
     </Container>
   );
 };

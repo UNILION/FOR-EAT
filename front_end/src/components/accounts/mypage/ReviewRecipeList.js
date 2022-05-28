@@ -1,24 +1,30 @@
 import React from "react";
 import styled from "styled-components";
-// import img from "assets/img/Ingredient_rosemary.jpg";
-import img from "assets/img/Landing_1.jpg";
+
+import ReviewCard from "components/accounts/mypage/ReviewCard";
 
 const Container = styled.div`
-`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-bottom: 10rem;
+`;
 
 const Top = styled.div`
   display: flex;
   justify-content: space-between;
   width: 100%;
   margin-top: 3rem;
+  margin-bottom: 1.5rem;
   font-family: Playfair Display;
-`
+`;
 
 const Title = styled.div`
   display: flex;
   font-family: Playfair Display;
-  font-size: 64px;
-`
+  font-size: 32px;
+  font-weight: 600;
+`;
 
 const See = styled.a`
   display: flex;
@@ -26,84 +32,45 @@ const See = styled.a`
   font-size: 20px;
   margin-left: auto;
   text-decoration: none;
-`
-
-const Review = styled.div`
-    display: flex;
-    flex-direction: row;
-    margin-top: 3rem;
-`
-
-const Image = styled.img`
-  position: absolute;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 14rem;
-  width: 14rem;
-  margin-left: 1rem;
-`
-
-const Text = styled.div`
-  background-color: #F2F2F2;
-  padding: 3rem;
-  padding-left: 5rem;
-  margin-top: 3rem;
-`
+  color: #ed8141;
+  font-family : Work Sans;
+`;
 
 const Sub = styled.div`
+  margin-top: 1rem;
+  margin-bottom: 3rem;
+  font-size: 20px;
   font-weight: bold;
-  font-size: 25px;
 `
 
-const Date = styled.div`
-  margin-top: 0.3rem;
-  font-size: 17px;
-  color: #999999;
-
-`
-
-const Rate = styled.div`
-margin-top: 0.3rem;
-  font-size: 22px;
-
-`
-
-const Contents = styled.div`
-margin-top: 1rem;
-  font-size: 18px;
-
-`
-
-const ReviewRecipeList = () => {
+const ReviewList = ({ ReviewList, UserInfo }) => {
   return (
-    <>
-      <Container>
-        <Top>
-          <Title>All Reviews</Title>
-          <See href="/mypage">See all →</See>
-        </Top>
-        <Review>
-          <Image src={img} alt="이미지를 찾을 수 없습니다." />
-          <Text>
-            <Sub>
-                PASTA WITH SAUSAGE, TOMATOES, AND CREAM
-            </Sub>
-            <Date>
-                2022.03.09
-            </Date>
-            <Rate>
-                ★★★★★
-            </Rate>
-            <Contents>
-                FOR:EAT recommends thousands of international recipes based on your preferences.
-                Collects your choices by a survey and gives you the recipes that you are looking for.
-            </Contents>
-          </Text>
-        </Review>
-      </Container>
-    </>
+    <Container>
+      <Top>
+        <Title>My Reviews</Title>
+        {ReviewList.length !== 0 ?
+        <See href={"/" + UserInfo + "/mypage/reviews"}>See all →</See>
+        :null}
+      </Top>
+      
+      {ReviewList.length !== 0 ?
+      <div
+        style={{ display: "flex", justifyContent: "center", flexWrap: "wrap" }}
+      >
+        {ReviewList.map((review) => (
+          <ReviewCard
+            key={review.id}
+            reviewId={review.id}
+            content={review.content}
+            ratings={review.ratings}
+            lastModifiedDate={review.last_modified_date}
+            recipe_seq={review.recipe_seq}
+          />
+        ))}
+      </div> : <Sub>Please register your review.</Sub>
+      }
+    </Container>
   );
 };
 
-export default ReviewRecipeList;
+export default ReviewList;

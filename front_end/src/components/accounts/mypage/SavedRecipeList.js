@@ -6,12 +6,12 @@ import WishRecipeList from "components/accounts/mypage/WishRecipeList"
 const Container = styled.div`
 `
 
-const SavedRecipeList = () => {
+const SavedRecipeList = ({RecipeList, ReviewList, UserInfo}) => {
   return (
     <>
       <Container>
-        <WishRecipeList /> 
-        <ReviewRecipeList /> 
+        <WishRecipeList RecipeList={RecipeList} UserInfo={UserInfo}/> 
+        <ReviewRecipeList ReviewList={ReviewList} UserInfo={UserInfo}/> 
       </Container>
     </>
   );

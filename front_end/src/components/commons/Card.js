@@ -2,17 +2,37 @@ import React from 'react';
 import styled from "styled-components";
 import PropTypes from "prop-types";
 import { Link } from 'react-router-dom';
+import Rating from '@mui/material/Rating';
+import heart from "assets/img/icon_filled_heart.png"
 
 const Container = styled.div`
   display: flex;
-  flex-flow: wrap;
-  min-width: 32vh;
+  margin: 1rem;
+  padding: 0.2rem;
+  border: 1px solid #C4C4C4;
 `
 
 const CardItem = styled.div`
-  width: 17rem;
-  height: 23rem;
-  margin: 2rem 0 5rem 0;
+  width: 19rem;
+  height: 24rem;
+  position: relative;
+  opacity: 1;
+  display: block;
+  transition: .5s ease;
+  backface-visibility: hidden;
+  object-fit: cover;
+  &:hover {
+    background-color: rgba(0,0,0,0.6);
+  }
+  &:hover .rating{
+    opacity: 0.3;
+  }
+  &:hover .image {
+    opacity: 0.3;
+  }
+  &:hover .middle {
+    opacity: 1;
+  }
 `
 
 const Img = styled.img`
@@ -21,11 +41,12 @@ const Img = styled.img`
 `
 
 const TextContainer = styled.div`
+  padding: 0.1rem 0.3rem;
   .title {
-    font-family: Playfair Display;
+    font-family: Work Sans;
     font-size: 1.2rem;
-    font-weight: bold;
-    margin-top: 1rem;
+    font-weight: 500;
+    margin-top: 0.5rem;
     width: 100%;
     height: 2.8rem;
     line-height: 1.3rem;
@@ -38,18 +59,12 @@ const TextContainer = styled.div`
   }
   .category {
     font-size: 0.87rem;
-    margin: 0.6rem 0;
+    margin: 0.7rem 0 0.5rem 0;
   }
   .Calorie {
     font-size: 0.87rem;
-    font-weight: bold;
+    font-weight: 300;
   }
-`
-
-const BorderLine = styled.div`
-  width: 100%;
-  margin: 1rem 0;
-  border-bottom: 1px solid black;
 `
 
 const SpaceBetweenContainer = styled.div`
@@ -57,47 +72,69 @@ const SpaceBetweenContainer = styled.div`
   justify-content: space-between;
 `
 
-const Line = styled.div`
-  height: 25.7rem;
-  border-right: 1px solid black;
-  margin: 2rem 1rem 0 1rem;
+const HoverText = styled.div`
+  transition: .5s ease;
+  opacity: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  text-align: center; 
 `
 
+const TextContent = styled.div`
+  color: white;
+  font-size: 16px;
+  font-style: italic;
+  padding: 1rem auto;
+  img {
+    width: 2rem;
+    height: auto;
+    margin: 0 0 1rem 0;
+  }
+`
 
-const Card = ({ index, recipeImg, recipeName, recipeCalorie, recipeSeq, recipeKeywords }) => {
+const Card = ({ recipeImg, recipeName, recipeCalorie, recipeSeq, recipeKeywords, recipeRating, likedCount}) => {
+
   return (
-    <>
+
       <Container>
         <Link to={`/recipes/${recipeSeq}`} style={{color: 'black', textDecoration : "none"}}>
           <CardItem>
-            <Img src={recipeImg} />
+            <Img src={recipeImg} className="image" />
             <TextContainer>
               <div className='title'>{recipeName}</div>
               <div className='category'>
                 {recipeKeywords.map((recipeKeyword, index) =>(index === 1 ? ', ' : '') + recipeKeyword)}
               </div>
-              <BorderLine />
               <SpaceBetweenContainer>
                 <div className='Calorie'>{Math.round(recipeCalorie)} Kcal</div>
+                <Rating className='rating' name="read-only" value={ recipeRating ? recipeRating : 0 } readOnly  size="small" />
               </SpaceBetweenContainer>
-              <BorderLine />
             </TextContainer>
+            <HoverText className="middle">
+              <TextContent className="text">
+                <img src={heart} alt=""/>
+                <div>{likedCount} PEOPLE</div>
+                <div>LIKED THIS RECIPE</div>
+              </TextContent>
+            </HoverText>
           </CardItem>
         </Link>
-        { (index+1)%4 === 0 ? null : <Line /> }
       </Container>
-    </>
+
   );
 };
 
 
 Card.propTypes = {
-  index: PropTypes.number.isRequired,
   recipeImg: PropTypes.string.isRequired,
   recipeName: PropTypes.string.isRequired,
   recipeCalorie: PropTypes.number.isRequired,
   recipeSeq: PropTypes.number.isRequired,
   recipeKeywords: PropTypes.array.isRequired,
+  likedCount: PropTypes.number.isRequired
 };
 
 

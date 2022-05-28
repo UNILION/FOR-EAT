@@ -1,14 +1,18 @@
-import React, { useState, useRef } from "react";
-import { useForm } from "react-hook-form";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import Rating from '@mui/material/Rating';
+import { useRecoilValue } from 'recoil';
+import { userInfoState } from 'atoms/atoms';
+import { getMember } from "api/MyPageApi";
+import { getReviewList } from "api/RecipeDetailApi";
+import { createReview } from "api/ReviewApi";
+import ReviewCard from "components/recipeDetail/ReviewCard"
+import { Alert } from "components/commons/Alert";
 
-import profileImg from "assets/img/Ingredient_rosemary.jpg";
-import { createReview } from "api/RecipeDetailApi";
 
 const Container = styled.div`
   display: flex;
+  flex-direction: column;
   justify-content: center;
 `
 
@@ -39,7 +43,7 @@ const InputContent = styled.textarea`
   margin-top: 0.5rem;
   font-family: Work Sans;
   font-size: 1rem;
-  padding: 0.5rem 0 0 0.6rem;
+  padding: 0.5rem 0 0.5rem 0.3rem;
   border: none;
   ::placeholder {
     font-family: Work Sans;
@@ -54,16 +58,34 @@ const InputContent = styled.textarea`
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: end;
+  label {
+    border: 1px solid black;
+    border-radius: 3rem;
+    background-color: white;
+    padding: 0.5rem 0.9rem;
+    margin: 0.7rem 0 0 1rem;
+    font-size: 0.85rem;
+    &:hover {
+      border: 1px solid black;
+      background-color: black;
+      color: white;
+      cursor: pointer;
+    }
+  }
+`
+const FileLabel = styled.div`
+  align-self: center;
+  margin: 0.5rem 0 0 0;
+  font-size: 0.8rem;
 `
 
-const InputButton = styled.input`
-  width: 6.7rem;
-  height: 2.3rem;
-  border: 1px solid white;
+const Button = styled.button`
+  border: 1px solid black;
   border-radius: 3rem;
-  box-shadow: 0 0 1px 1px #969696;
   background-color: white;
+  padding: 0.5rem 0.9rem;
   margin: 0.7rem 0 0 1rem;
+  font-size: 0.8rem;
   &:hover {
     border: 1px solid black;
     background-color: black;
@@ -72,95 +94,145 @@ const InputButton = styled.input`
   }
 `
 
-const Button = styled.div`
-  width: 6.7rem;
-  height: 2.3rem;
-  border: 1px solid white;
-  border-radius: 3rem;
-  box-shadow: 0 0 1px 1px #969696;
-  background-color: white;
-  margin: 0.7rem 0 0 1rem;
-  &:hover {
-    border: 1px solid black;
-    background-color: black;
-    color: white;
-    cursor: pointer;
-  }
-`
+  
+const CardContainer = styled.div`
 
+`
 
 
 const ReviewForm = ({ recipeId }) => {
+  const UserInfo = useRecoilValue(userInfoState);
+  const [ profileImage, setProfileImage] = useState();
   const [ ratings, setRatings ] = useState();
   const [ content, setContent ] = useState();
   const [ image_url, setImageUrl] = useState();
-  
-  // const files = event.target.files;
-  // console.log(files);
-  // this.setState({
-  //   selectedFiles: files
-  // });
+  const [ fileName, setFileName ] = useState();
+  const [ reviews, setReviews] = useState([]); 
+
   
   const onFileUpload = (event) => { 
-    // 파일 이미지 크기 제한해야됨?!
     const file = event.target.files[0]
-    // console.log(file)
-    setImageUrl(file);
+    if (file.size > 1048576) {
+      event.preventDefault();
+      Alert("❌ File Size Is Too Big. Max 1MB.")
+      return;
+    } else {
+      setImageUrl(file);
+      setFileName(file.name)
+    }
   };
   
   const onClickSave = async (event) => {
     event.preventDefault();
-    console.log(content)
+    if (!ratings) {
+      Alert("❌ Please Rate The Recipe.")
+      return;
+    }
+    if (!content) {
+      Alert("❌ Please Write A Comment.")
+      return;
+    }
     const formData = new FormData();
     formData.append("image", image_url);
     formData.append("content", content);
     formData.append("ratings", ratings);
-    // console.log(formData)
-    for (let key of formData.keys()) { console.log(key, ":", formData.get(key)); }
-    // await axios({
-    //   method: 'post',
-    //   url: `/recipes/${recipeId}/reviews/`,
-    //   data: formData,
-    //   headers: {
-    //     'Content-Type': 'multipart/form-data',
-    //     'Access-Control-Allow-Credentials': true,
-    //   }
-    // })
-    const response = await createReview(recipeId, formData)
-    console.log(response)
-    
-  }
 
+    const response = await createReview(recipeId, formData)
+    if (response) {
+      if ( response.status === 201 ) {
+        const result = await getReviewList(recipeId)
+        setReviews(result.data)
+        // 리뷰 작성 후 입력 값 초기화
+        setRatings(0)
+        setContent("")
+      } else if ( response.status === 202 ) {
+        Alert("❌ You can review only once.")
+      }
+    }
+  }
+  
+  useEffect(() => {
+    getMember(UserInfo)
+    .then((res) => {
+      setProfileImage(res.profile_image_url)
+     })
+    .catch((err) => 
+      console.log(err)
+      )
+
+    getReviewList(recipeId).then((res) => {
+      setReviews(res.data)
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+  },[]);
+
+  useEffect(()=> {
+    getReviewList(recipeId).then((res) => {
+      setReviews(res.data)
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+  }, [])
+  
   return (
     <Container>
-      <Form>
-        <ImgWrapper>
-          <Img src={profileImg} alt="" />
-        </ImgWrapper>
-        <div style={{padding: "0.5rem 1rem"}}>
-          <Rating
-            name="simple-controlled"
-            value={ratings}
-            onChange={(event, newRatings) => {
-              setRatings(newRatings);
-            }}
-          />
-          <InputContent placeholder="WRITE YOUR REVIEW HERE"
-            value={content} 
-            onChange={
-              (e)=> setContent(e.target.value)
-            }/>
-          <ButtonContainer>
-            <input 
-              type="file"
-              id="file" 
-              onChange={onFileUpload}
-              multiple="multiple"
+      <div style={{display: "flex", justifyContent: "center"}}>
+        <Form enctype="multipart/form-data">
+          <ImgWrapper>
+            <Img src={profileImage} alt="" />
+          </ImgWrapper>
+          <div style={{padding: "0.5rem 0"}}>
+            <Rating
+              name="simple-controlled"
+              value={ratings}
+              onChange={(event, newRatings) => {
+                setRatings(newRatings);
+              }}
             />
-            <button onClick={onClickSave}>저장</button>
-          </ButtonContainer>
-        </div>
-      </Form>
+            <InputContent placeholder="WRITE YOUR REVIEW HERE"
+              value={content}
+              maxLength="1000"
+              onChange={
+                (e)=> setContent(e.target.value)
+              }/>
+            <ButtonContainer>
+            <FileLabel>{ fileName }</FileLabel>
+            <label htmlFor="input-file">
+              UPLOAD
+            </label>
+              <input 
+                type="file"
+                id="input-file" 
+                onChange={onFileUpload}
+                multiple="multiple"
+                accept="image/jpg, image/png, image/jpeg"
+                style={{display: "none"}}
+              />
+              <Button onClick={onClickSave}>SAVE</Button>
+            </ButtonContainer>
+          </div>
+        </Form>
+      </div>
+      <CardContainer>
+        <div style={{display:"flex", justifyContent:"center", flexWrap:"wrap" }}>
+            { reviews.length ? reviews.map((review) => ( 
+              <ReviewCard
+                key={review.id}
+                reviewId={review.id}
+                recipeId={review.recipe_seq}
+                memberName={review.member_nickname}
+                profileImgUrl={review.profile_image_url}
+                imgUrl={review.image_url}
+                content={review.content}
+                ratings={review.ratings}
+                lastModifiedDate={review.last_modified_date}
+              />
+            )): null}
+          </div>
+      </CardContainer>
     </Container>
   );
 };

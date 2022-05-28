@@ -4,7 +4,6 @@ import styled from "styled-components";
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import "animate.css/animate.min.css";
-import { AnimationOnScroll } from 'react-animation-on-scroll';
 
 import Typography from "components/commons/Typography";
 import LoginModal from 'components/accounts/login/LoginModal';
@@ -47,7 +46,7 @@ const TextContainer = styled.div`
   flex-direction: column;
   width: ${(props) => (props.w ? props.w : "50%")};
   .text__wrapper {
-    padding: 26rem 4rem 4rem 4rem; 
+    padding: 24rem 4rem 4rem 4rem; 
   }
   .point { 
     height: 2rem;
@@ -73,10 +72,10 @@ const TextContainer = styled.div`
   }
   .Hr_right {
     border: 0;
-    width: 3rem;
+    width: 2.5rem;
     height: 0.1rem;
     background: black;
-    margin: 0 0 0 92.5%;
+    margin: 0 0 0 94.5%;
   }
   .content {
     font-size: 1rem;
@@ -92,16 +91,19 @@ const TextContainer = styled.div`
     padding-left: 12rem;
   }
 `
-const Discover = styled.a`
+const SignUpButton = styled.a`
   display: inline-block;
-  color: black;
+  color: #ED8141;
   cursor: pointer;
   text-decoration: none;
-  font-size: 1.2rem;
-  font-weight: 400;
-  margin: 2rem 0;
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin: 1rem 0;
   .right {
     padding-left: 20rem;
+  };  
+  &:hover {
+    color: black; 
   }
 `
 
@@ -127,6 +129,7 @@ const Landing = () => {
   const closeModal = () => {
     setModalOpen(false);
   };
+
   return (
     <>
       <div>
@@ -157,7 +160,7 @@ const Landing = () => {
                 Collects your choices by a survey and gives you the recipes that you are looking for.
               </div>
               <div style={{alignItems: "end"}}>
-              <Discover onClick={openModal}>DISCOVER</Discover>
+              <SignUpButton onClick={openModal}>SIGN IN</SignUpButton>
               <LoginModal open={modalOpen} close={closeModal}
               >
               </LoginModal>
@@ -186,7 +189,7 @@ const Landing = () => {
                 <div className="content">
                   Enjoy your meal:)
                 </div>
-                <Discover onClick={openModal}>DISCOVER</Discover>
+                <SignUpButton onClick={openModal}>SIGN IN</SignUpButton>
               </div>
             </div>
           </TextContainer>
@@ -200,14 +203,12 @@ const Landing = () => {
           </BackgroundImgContainer>
         </Container>
         <Container style={{padding: "3rem 10rem", flexDirection:"column"}}>
-          <AnimationOnScroll animateIn="animate__fadeInLeftBig">
-            <Typography
-              ff="Playfair Display"
-              dp="inlinex" mt="2rem" mb="3rem"
-              fs="4rem" ta="left" 
-            >WHAT'S IN MY FRIDGE?</Typography>
-          </AnimationOnScroll>
-          <SpaceBetweenContainer>
+          <Typography
+            ff="Playfair Display"
+            dp="inlinex" mt="2rem" mb="3rem"
+            fs="4rem" ta="left" 
+          >WHAT'S IN MY FRIDGE?</Typography>
+          <SpaceBetweenContainer data-aos="fade-right" data-aos-delay="100" data-aos-duration="1000" data-aos-easing="ease-in-out">
             <ImgArchWrapper>
               <ImgArch src={Ingredient_broccoli}/>
             </ImgArchWrapper>
@@ -221,7 +222,7 @@ const Landing = () => {
               <ImgArch src={Ingredient_rosemary}/>
             </ImgArchWrapper>
           </SpaceBetweenContainer>
-          <SpaceBetweenContainer mb="5rem">
+          <SpaceBetweenContainer mb="5rem" data-aos="fade-left" data-aos-delay="100" data-aos-duration="1000" data-aos-easing="ease-in-out">
             <ImgArchWrapper>
               <ImgArch src={Ingredient_asparagus}/>
             </ImgArchWrapper>
@@ -269,7 +270,7 @@ const Landing = () => {
                     <br />
                     Collects your choices by a survey and gives you the recipes that you are looking for.
                   </div>
-                  <Discover onClick={openModal}>DISCOVER</Discover>
+                  <SignUpButton onClick={openModal}>SIGN IN</SignUpButton>
                 </TextContainer>
                 <TextContainer style={{display: "flex", paddingRight:"3rem"}}>
                   <div className="content__2">

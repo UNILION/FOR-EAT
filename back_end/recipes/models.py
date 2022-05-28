@@ -64,10 +64,16 @@ class Recipe(models.Model):
     protein_content = models.FloatField()
     instructions = models.TextField()
     images = models.TextField()
+    
+    # 추천항목들
+    ingredients_recommend = models.TextField()
+    nutrient_recommend = models.TextField()
+
     ingredients = models.ManyToManyField(Ingredient, related_name='recipes', through='RecipeIngredient')
     keywords = models.ManyToManyField(Keyword, related_name='recipes', through='RecipeKeyword')
     categories = models.ManyToManyField(Category, related_name='recipes', through='RecipeCategory')
     allergies = models.ManyToManyField(Allergy, related_name='recipes', through='RecipeAllergy')
+
 
     def __str__(self):
         return f'{self.pk}: {self.name}'
@@ -77,8 +83,8 @@ class Recipe(models.Model):
 
 
 class Review(models.Model):
-    member = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
+    member = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, db_column='member_seq')
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, db_column='recipe_seq')
     content = models.TextField()
     image_url = models.CharField(max_length=255, null=True)
     ratings = models.IntegerField(default=1,
@@ -93,29 +99,29 @@ class Review(models.Model):
         db_table = 'tb_review'
 
 class RecipeKeyword(models.Model):
-    recipe_seq = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    keyword_seq = models.ForeignKey(Keyword, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, db_column='recipe_seq')
+    keyword = models.ForeignKey(Keyword, on_delete=models.CASCADE, db_column='keyword_seq')
 
     class Meta:
         db_table = 'tb_recipe_keyword'
 
 class RecipeIngredient(models.Model):
-    recipe_seq = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    ingredient_seq = models.ForeignKey(Ingredient, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, db_column='recipe_seq')
+    ingredient = models.ForeignKey(Ingredient, on_delete=models.CASCADE, db_column='ingredient_seq')
 
     class Meta:
         db_table = 'tb_recipe_ingredient'
 
 class RecipeCategory(models.Model):
-    recipe_seq = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    category_seq = models.ForeignKey(Category, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, db_column='recipe_seq')
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, db_column='category_seq')
 
     class Meta:
         db_table = 'tb_recipe_category'
 
 class RecipeAllergy(models.Model):
-    recipe_seq = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-    allergy_seq = models.ForeignKey(Allergy, on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, db_column='recipe_seq')
+    allergy = models.ForeignKey(Allergy, on_delete=models.CASCADE, db_column='allergy_seq')
 
     class Meta:
         db_table = 'tb_recipe_allergy'
